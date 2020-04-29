@@ -1,0 +1,8 @@
+
+{
+    "pack": {
+        "description": "Reforged",
+        "pack_format": 5,
+        "_comment": "An empty resource pack to stop forge from throwing an error"
+    }
+}
