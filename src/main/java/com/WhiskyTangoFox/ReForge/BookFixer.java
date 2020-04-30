@@ -1,38 +1,32 @@
 package com.WhiskyTangoFox.ReForge;
 
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.ChestTileEntity;
+import net.minecraft.util.math.BlockPos;
+import org.apache.logging.log4j.Logger;
+
 public class BookFixer {
-/*
-    public boolean onCommand(PlayerEntity player) {
 
-        for(int i = 0; i < player.inventory.getSizeInventory()-1; i++){
-                ItemStack itemstack = player.inventory.getStackInSlot(i);
-                if(itemstack != null) {
-                    if(itemstack.getItem().equals(Items.ENCHANTED_BOOK)){
-                        //EnchantmentStorageMeta meta = itemstack.(EnchantmentStorageMeta)itemstack.getItemMeta();
-                        ListNBT meta = itemstack.getEnchantmentTagList();
-                        //TODO- understand the enchantment tag list
-                        ReForge.LOGGER.info("Enchantment NBT: "+meta.toString());
-                        if(meta.isEmpty()) {
-                            ReForge.LOGGER.info("Found Runic Book without enchantment! Fixing now!");
-                            String metaString = meta.toString();
-                            String[] msArray = metaString.split("=");
-                            String enchantStr = msArray[msArray.length-2].replaceAll("[\\[\\](){}]","");
-                            String enchantLvlStr = msArray[msArray.length-1].replaceAll("[\\[\\](){}]","");
-                            //meta.addStoredEnchant(EnchantmentWrapper.getByName(enchantStr), Integer.parseInt(enchantLvlStr), true);
-                            EnchantedBookItem.getEnchantedItemStack().
-                        }
+    static Logger LOGGER = ReForge.LOGGER;
 
-
-                        itemstack.setItemMeta(meta);
-                        player.updateInventory();
-
+    public static void fixBook(ChestTileEntity chest, BlockPos pos) {
+        for (int i = 0; i < chest.getSizeInventory() - 1; i++) {
+            ItemStack itemstack = chest.getStackInSlot(i);
+            if (itemstack != null) {
+                if (itemstack.getItem().equals(Items.ENCHANTED_BOOK)) {
+                    itemstack.getTag().get("Enchantments");
+                    CompoundNBT oldTag = itemstack.getTag();
+                    if (oldTag.contains("Enchantments")) {
+                        LOGGER.info("fixing broken enchantment at " + pos.toString());
+                        oldTag.put("StoredEnchantments", oldTag.get("Enchantments"));
+                        oldTag.remove("Enchantments");
                     }
                 }
             }
-            return true;
         }
+    }
 
-
-*/
 
 }

@@ -1,6 +1,5 @@
 package com.WhiskyTangoFox.ReForge.RetroGeneration;
 
-import com.WhiskyTangoFox.ReForge.ReForge;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
@@ -13,7 +12,6 @@ import net.minecraft.world.gen.OverworldChunkGenerator;
 import net.minecraft.world.gen.OverworldGenSettings;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoader;
 
 public class TickThreadGenerator implements Runnable {
 

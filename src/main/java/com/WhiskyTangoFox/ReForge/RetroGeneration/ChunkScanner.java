@@ -1,8 +1,10 @@
 package com.WhiskyTangoFox.ReForge.RetroGeneration;
 
+import com.WhiskyTangoFox.ReForge.BookFixer;
 import com.WhiskyTangoFox.ReForge.ReForge;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.ChestTileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.IChunk;
 
@@ -40,6 +42,10 @@ public class ChunkScanner {
     public void backupTileEntities() {
         entitiesList = chunk.getTileEntitiesPos();
         for (BlockPos pos : entitiesList) {
+            if (chunk.getTileEntity(pos) instanceof ChestTileEntity) {
+                //ReForge.LOGGER.info("Found a chest tile entity");
+                BookFixer.fixBook((ChestTileEntity) chunk.getTileEntity(pos), pos);
+            }
             tileEntitiesBackup.put(pos, chunk.getBlockState(pos));
             nbtBackup.put(pos, chunk.getTileEntityNBT(pos).copy());
         }

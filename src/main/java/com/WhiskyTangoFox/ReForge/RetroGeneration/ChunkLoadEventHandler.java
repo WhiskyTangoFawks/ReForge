@@ -23,7 +23,6 @@ public class ChunkLoadEventHandler {
             return;
         }
 
-        //TODO Marked out for testing
         if (chunkAlreadyDone(event.getChunk())) {
            //LOGGER.info("Skipping, already done");
            return;
