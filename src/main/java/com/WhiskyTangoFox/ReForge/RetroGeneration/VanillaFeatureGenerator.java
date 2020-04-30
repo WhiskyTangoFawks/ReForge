@@ -42,6 +42,7 @@ public class VanillaFeatureGenerator {
     private Structure pillager = Feature.PILLAGER_OUTPOST;
 
     private Feature iceberg = Feature.ICEBERG;
+    private Feature dungeon = Feature.MONSTER_ROOM;
 
     private Structure[] structure = {oceanRuin, wreck, mine, oceanMonument, stronghold, treasure, hut, mansion, pyramid, pillager};
 
@@ -77,9 +78,16 @@ public class VanillaFeatureGenerator {
                 ReForge.LOGGER.info("Fossil Placed " + pos.toString());
             }
         } catch (Exception e) {
-            ReForge.LOGGER.error("Fossil generation failed " + e.toString());
+            ReForge.LOGGER.error("Iceberg generation failed " + e.toString());
         }
-
+        try {
+            if (ReforgeConfig.dungeonChance > 0 && world.getRandom().nextInt(ReforgeConfig.dungeonChance) == 0
+                    && dungeon.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
+                ReForge.LOGGER.info("dungeon Placed " + pos.toString());
+            }
+        } catch (Exception e) {
+            ReForge.LOGGER.error("dungeon generation failed " + e.toString());
+        }
 
         //} catch (Exception e) {
         //    ReForge.LOGGER.warn("Error during ReForging: " + e.toString());

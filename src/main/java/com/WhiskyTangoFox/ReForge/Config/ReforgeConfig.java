@@ -26,6 +26,7 @@ public class ReforgeConfig {
 
     public static int fossilChance;
     public static int icebergChance;
+    public static int dungeonChance;
 
     public static Boolean oceanRuin;
     public static Boolean oceanMonument;
@@ -62,6 +63,7 @@ public class ReforgeConfig {
         pillagerOutpost = CLIENT.pillagerOutpost.get();
         fossilChance = CLIENT.fossilChance.get();
         icebergChance = CLIENT.icebergChance.get();
+        dungeonChance = CLIENT.dungeonChance.get();
     }
 
 

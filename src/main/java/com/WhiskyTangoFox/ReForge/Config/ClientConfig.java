@@ -21,7 +21,7 @@ public class ClientConfig {
     public final ForgeConfigSpec.BooleanValue pillagerOutpost;
     public final ForgeConfigSpec.IntValue fossilChance;
     public final ForgeConfigSpec.IntValue icebergChance;
-
+    public final ForgeConfigSpec.IntValue dungeonChance;
 
     public ClientConfig(ForgeConfigSpec.Builder builder) {
         builder.push("ReGeneration Range");
@@ -91,6 +91,10 @@ public class ClientConfig {
                 .comment("1 Chance X per chunk for a iceberg, 0 to disable, the larger the value the more rare")
                 .translation("reforge" + ".config." + "icebergChance")
                 .defineInRange("icebergChance", 100, 0, 10000);
+        dungeonChance = builder
+                .comment("1 Chance X per chunk for a dungeon, 0 to disable, the larger the value the more rare")
+                .translation("reforge" + ".config." + "dungeonChance")
+                .defineInRange("dungeonChance", 100, 0, 10000);
         builder.pop();
     }
 
