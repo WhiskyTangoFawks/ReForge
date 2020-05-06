@@ -9,16 +9,16 @@ import net.minecraft.util.math.MutableBoundingBox;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeManager;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.ChunkGenerator;
-import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.NoFeatureConfig;
 import net.minecraft.world.gen.feature.structure.*;
 import net.minecraft.world.gen.feature.template.TemplateManager;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.BiomeDictionary;
+
+import java.util.Map;
 
 public class VanillaFeatureGenerator {
 
@@ -28,23 +28,22 @@ public class VanillaFeatureGenerator {
     private final BlockPos pos;
     private final Boolean hasTileEntities;
 
-    private Feature fossil = Feature.FOSSIL;
-    private Structure oceanRuin = Feature.OCEAN_RUIN;
-    private Structure wreck = Feature.SHIPWRECK;
-    private Structure mine = Feature.MINESHAFT;
-    private Structure oceanMonument = Feature.OCEAN_MONUMENT;
-    private Structure stronghold = Feature.STRONGHOLD;
-    private Structure treasure = Feature.BURIED_TREASURE;
+    private static Feature fossil = Feature.FOSSIL;
+    private static Feature dungeon = Feature.MONSTER_ROOM;
 
-    private Structure hut = Feature.SWAMP_HUT;
-    private Structure mansion = Feature.WOODLAND_MANSION;
-    private Structure pyramid = Feature.DESERT_PYRAMID;
-    private Structure pillager = Feature.PILLAGER_OUTPOST;
+    private static Structure oceanRuin = Feature.OCEAN_RUIN;
+    private static Structure wreck = Feature.SHIPWRECK;
+    private static Structure mine = Feature.MINESHAFT;
+    private static Structure oceanMonument = Feature.OCEAN_MONUMENT;
+    private static Structure stronghold = Feature.STRONGHOLD;
+    private static Structure treasure = Feature.BURIED_TREASURE;
 
-    private Feature iceberg = Feature.ICEBERG;
-    private Feature dungeon = Feature.MONSTER_ROOM;
+    private static Structure hut = Feature.SWAMP_HUT;
+    private static Structure mansion = Feature.WOODLAND_MANSION;
+    private static Structure pyramid = Feature.DESERT_PYRAMID;
+    private static Structure pillager = Feature.PILLAGER_OUTPOST;
 
-    private Structure[] structure = {oceanRuin, wreck, mine, oceanMonument, stronghold, treasure, hut, mansion, pyramid, pillager};
+    public static Structure[] structure = {oceanRuin, wreck, mine, oceanMonument, stronghold, treasure, hut, mansion, pyramid, pillager};
 
     VanillaFeatureGenerator(IWorld world, IChunk chunk, ChunkGenerator gen, BlockPos pos, boolean hasTiles) {
         this.world = world;
@@ -56,12 +55,12 @@ public class VanillaFeatureGenerator {
 
     void generate() {
         //try {
-            if (hasTileEntities) {
-                ReForge.LOGGER.info("Tile Entities Found- skipping gen " + pos.toString());
-                return;
-            }
-        fixHeightMaps();
+        if (hasTileEntities) {
+            ReForge.LOGGER.info("Tile Entities Found- skipping gen " + pos.toString());
+            return;
+        }
         generateStructures();
+
         try {
             int fossilChance = BiomeDictionary.hasType(world.getBiome(pos), BiomeDictionary.Type.MESA) ? ReforgeConfig.fossilChance / 2 : ReforgeConfig.fossilChance;
             if (ReforgeConfig.fossilChance > 0 && world.getRandom().nextInt(fossilChance) == 0 && fossil.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
@@ -70,62 +69,47 @@ public class VanillaFeatureGenerator {
         } catch (Exception e) {
             ReForge.LOGGER.error("Fossil generation failed " + e.toString());
         }
-        try {
-            if (ReforgeConfig.icebergChance > 0 && world.getRandom().nextInt(ReforgeConfig.icebergChance) == 0
-                    && BiomeDictionary.hasType(world.getBiome(pos), BiomeDictionary.Type.OCEAN)
-                    && BiomeDictionary.hasType(world.getBiome(pos), BiomeDictionary.Type.COLD)
-                    && iceberg.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
-                ReForge.LOGGER.info("Fossil Placed " + pos.toString());
-            }
-        } catch (Exception e) {
-            ReForge.LOGGER.error("Iceberg generation failed " + e.toString());
-        }
-        try {
-            if (ReforgeConfig.dungeonChance > 0 && world.getRandom().nextInt(ReforgeConfig.dungeonChance) == 0
-                    && dungeon.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
-                ReForge.LOGGER.info("dungeon Placed " + pos.toString());
-            }
-        } catch (Exception e) {
-            ReForge.LOGGER.error("dungeon generation failed " + e.toString());
-        }
-
-        //} catch (Exception e) {
-        //    ReForge.LOGGER.warn("Error during ReForging: " + e.toString());
-        // }
-
     }
 
     public void generateStructures() {
-        if (!(world instanceof ServerWorld)){
+        if (!(world instanceof ServerWorld)) {
             return;
         }
+        //try moving this to pre-threading
+        prepStructureStarts(world, chunk, generator);
+        generateStructureStarts();
+        placeStructures();
 
-        TemplateManager templateManager = ((ServerWorld)this.world).getSaveHandler().getStructureTemplateManager();
-        BiomeManager biomeManager = world.getBiomeManager();
 
-        for(Structure<?> structure : structure) {
-            try {
-                if (generator.getBiomeProvider().hasStructure(structure)) {
-                    StructureStart structurestart = chunk.getStructureStart(structure.getStructureName());
-                    int i = structurestart != null ? structurestart.func_227457_j_() : 0;
-                    SharedSeedRandom sharedseedrandom = new SharedSeedRandom();
-                    ChunkPos chunkpos = chunk.getPos();
-                    StructureStart structurestart1 = StructureStart.DUMMY;
-                    Biome biome = biomeManager.getBiome(new BlockPos(chunkpos.getXStart() + 9, 0, chunkpos.getZStart() + 9));
-                    if (structure.func_225558_a_(biomeManager, generator, sharedseedrandom, chunkpos.x, chunkpos.z, biome)) {
-                        StructureStart structurestart2 = structure.getStartFactory().create(structure, chunkpos.x, chunkpos.z, MutableBoundingBox.getNewBoundingBox(), i, generator.getSeed());
-                        structurestart2.init(generator, templateManager, chunkpos.x, chunkpos.z, biome);
-                        structurestart1 = structurestart2.isValid() ? structurestart2 : StructureStart.DUMMY;
+    }
+
+    //I think this populates the keys
+    public void generateStructureStarts() {
+        int j = chunk.getPos().x;
+        int k = chunk.getPos().z;
+        int l = j << 4;
+        int i1 = k << 4;
+
+        //This seems to be iterating through adjacent chunks, iterating through their structures, and seeing if any starts intersect here
+        for (int j1 = j - 8; j1 <= j + 8; ++j1) {
+            for (int k1 = k - 8; k1 <= k + 8; ++k1) {
+                long l1 = ChunkPos.asLong(j1, k1);
+                //TODO- Restrict checks to inside the world boundary
+                ChunkLoadEventHandler.adjacentCalls.add(l1);
+                prepStructureStarts(world, world.getChunk(j1, k1), generator);
+                for (Map.Entry<String, StructureStart> entry : world.getChunk(j1, k1).getStructureStarts().entrySet()) {
+                    StructureStart structurestart = entry.getValue();
+                    if (structurestart != StructureStart.DUMMY && structurestart.getBoundingBox().intersectsWith(l, i1, l + 15, i1 + 15)) {
+
+                        chunk.addStructureReference(entry.getKey(), l1);
+                        //DebugPacketSender.sendStructureStart(world, structurestart);
                     }
-
-                    chunk.putStructureStart(structure.getStructureName(), structurestart1);
                 }
-            }catch (Exception e){
-                ReForge.LOGGER.error("ReForging failed while generating " + structure.getStructureName());
-                e.printStackTrace();
             }
         }
-        generator.generateStructureStarts(world, chunk);
+    }
+
+    void placeStructures() {
         if (ReforgeConfig.stronghold && stronghold.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
             ReForge.LOGGER.info("Stronghold Placed " + pos.toString());
         }
@@ -146,7 +130,7 @@ public class VanillaFeatureGenerator {
             ReForge.LOGGER.info("Buried Treasure Placed " + pos.toString());
         }
         MineshaftStructure.Type mineType = BiomeDictionary.hasType(world.getBiome(pos), BiomeDictionary.Type.MESA) ? MineshaftStructure.Type.MESA : MineshaftStructure.Type.NORMAL;
-        if (ReforgeConfig.mineShaft && mine.place(world, generator, world.getRandom(), pos, new MineshaftConfig(1f, mineType))) {
+        if (ReforgeConfig.mineShaft && mine.place(world, generator, world.getRandom(), pos, new MineshaftConfig(0.004f, mineType))) {
             ReForge.LOGGER.info("Mineshaft Placed " + pos.toString());
         }
         if (ReforgeConfig.swampHut && hut.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
@@ -161,11 +145,28 @@ public class VanillaFeatureGenerator {
         if (ReforgeConfig.pillagerOutpost && pillager.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
             ReForge.LOGGER.info("Pillager Outpost Placed " + pos.toString());
         }
+
     }
 
-    private void fixHeightMaps() {
-        Chunk chunky = (Chunk) chunk;
-        ((Chunk) chunk).heightMap.put(Heightmap.Type.OCEAN_FLOOR_WG, chunky.heightMap.get(Heightmap.Type.OCEAN_FLOOR));
+    static public void prepStructureStarts(IWorld world, IChunk chunk, ChunkGenerator generator) {
+        TemplateManager templateManager = ((ServerWorld) world).getSaveHandler().getStructureTemplateManager();
+        BiomeManager biomeManager = world.getBiomeManager();
+        for (Structure<?> structure : VanillaFeatureGenerator.structure) {
+            if (world.getBiome(chunk.getPos().asBlockPos()).hasStructure(structure) && generator.getBiomeProvider().hasStructure(structure)) {
+                StructureStart structurestart = chunk.getStructureStart(structure.getStructureName());
+                int i = structurestart != null ? structurestart.func_227457_j_() : 0;
+                SharedSeedRandom sharedseedrandom = new SharedSeedRandom();
+                ChunkPos chunkpos = chunk.getPos();
+                StructureStart structurestart1 = StructureStart.DUMMY;
+                Biome biome = biomeManager.getBiome(new BlockPos(chunkpos.getXStart() + 9, 0, chunkpos.getZStart() + 9));
+                if (structure.func_225558_a_(biomeManager, generator, sharedseedrandom, chunkpos.x, chunkpos.z, biome)) {
+                    StructureStart structurestart2 = structure.getStartFactory().create(structure, chunkpos.x, chunkpos.z, MutableBoundingBox.getNewBoundingBox(), i, generator.getSeed());
+                    structurestart2.init(generator, templateManager, chunkpos.x, chunkpos.z, biome);
+                    structurestart1 = structurestart2.isValid() ? structurestart2 : StructureStart.DUMMY;
+                }
+                chunk.putStructureStart(structure.getStructureName(), structurestart1);
+            }
+        }
     }
 
 }

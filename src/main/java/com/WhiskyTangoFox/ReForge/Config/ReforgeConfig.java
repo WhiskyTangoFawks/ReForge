@@ -62,8 +62,8 @@ public class ReforgeConfig {
         pyramid = CLIENT.pyramid.get();
         pillagerOutpost = CLIENT.pillagerOutpost.get();
         fossilChance = CLIENT.fossilChance.get();
-        icebergChance = CLIENT.icebergChance.get();
-        dungeonChance = CLIENT.dungeonChance.get();
+        //icebergChance = CLIENT.icebergChance.get();
+        //dungeonChance = CLIENT.dungeonChance.get();
     }
 
 

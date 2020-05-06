@@ -31,67 +31,39 @@ public class QuarksGenerator {
         this.hasTileEntities = hasTiles;
     }
 
+    public void doGen() {
+        generate(GenerationStage.Decoration.UNDERGROUND_ORES);
+        generate(GenerationStage.Decoration.UNDERGROUND_DECORATION);
+
+        if (!hasTileEntities) { //If the chunk has any tile entities already, skip structure generation
+            generate(GenerationStage.Decoration.UNDERGROUND_STRUCTURES);
+            generate(GenerationStage.Decoration.SURFACE_STRUCTURES);
+            generate(GenerationStage.Decoration.VEGETAL_DECORATION);
+        }
+    }
 
     public void generate(GenerationStage.Decoration stage) {
-        SharedSeedRandom random = new SharedSeedRandom();
-        long seed = random.setDecorationSeed(worldIn.getSeed(), pos.getX(), pos.getZ());
-        int stageNum = stage.ordinal() * 10000;
-        if (generators.containsKey(stage)) {
-            SortedSet<WeightedGenerator> set = (SortedSet) generators.get(stage);
-            Iterator var10 = set.iterator();
+        try {
+            SharedSeedRandom random = new SharedSeedRandom();
+            long seed = random.setDecorationSeed(worldIn.getSeed(), pos.getX(), pos.getZ());
+            int stageNum = stage.ordinal() * 10000;
+            if (generators.containsKey(stage)) {
+                SortedSet<WeightedGenerator> set = (SortedSet) generators.get(stage);
+                Iterator var10 = set.iterator();
 
-            while (var10.hasNext()) {
-                WeightedGenerator wgen = (WeightedGenerator) var10.next();
-                IGenerator gen = wgen.generator;
-                if (wgen.module.enabled && gen.canGenerate(worldIn)) {
-                    stageNum = gen.generate(stageNum, seed, stage, worldIn, generator, random, pos);
+                while (var10.hasNext()) {
+                    WeightedGenerator wgen = (WeightedGenerator) var10.next();
+                    IGenerator gen = wgen.generator;
+                    if (wgen.module.enabled && gen.canGenerate(worldIn)) {
+                        stageNum = gen.generate(stageNum, seed, stage, worldIn, generator, random, pos);
+                    }
                 }
             }
+        } catch (Exception e) {
+            ReForge.LOGGER.warn("Error during Quark ReForging " + stage.getName() + ": " + e.toString());
         }
     }
 
-
-    public void doGen() {
-        //ReForge.LOGGER.info("Doing Quarks Generation");
-        try {
-            generate(GenerationStage.Decoration.RAW_GENERATION);
-        } catch (Exception e) {
-            ReForge.LOGGER.warn("Error during ReForgine: " + e.toString());
-        }
-        try {
-            generate(GenerationStage.Decoration.LOCAL_MODIFICATIONS);
-        } catch (Exception e) {
-            ReForge.LOGGER.warn("Error during ReForgine: " + e.toString());
-        }
-        generate(GenerationStage.Decoration.UNDERGROUND_ORES);
-        try {
-            generate(GenerationStage.Decoration.TOP_LAYER_MODIFICATION);
-        } catch (Exception e) {
-            ReForge.LOGGER.warn("Error during ReForgine: " + e.toString());
-        }
-        try {
-            generate(GenerationStage.Decoration.UNDERGROUND_DECORATION);
-        } catch (Exception e) {
-            ReForge.LOGGER.warn("Error during ReForgine: " + e.toString());
-        }
-        try {
-            generate(GenerationStage.Decoration.VEGETAL_DECORATION);
-        } catch (Exception e) {
-            ReForge.LOGGER.warn("Error during ReForgine: " + e.toString());
-        }
-        if (!hasTileEntities) { //If the chunk has any tile entities already, skip structure generation
-            try {
-                generate(GenerationStage.Decoration.UNDERGROUND_STRUCTURES);
-            } catch (Exception e) {
-                ReForge.LOGGER.warn("Error during ReForgine: " + e.toString());
-            }
-            try {
-                generate(GenerationStage.Decoration.SURFACE_STRUCTURES);
-            } catch (Exception e) {
-                ReForge.LOGGER.warn("Error during ReForgine: " + e.toString());
-            }
-        }
-    }
 }
 
 
