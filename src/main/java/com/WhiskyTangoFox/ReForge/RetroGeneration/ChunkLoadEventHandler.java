@@ -23,30 +23,27 @@ public class ChunkLoadEventHandler {
 
     @SubscribeEvent
     public void chunkLoad(ChunkEvent.Load event) {
-        //ReForge.LOGGER.info("Chunk Load Event Caught");
-        //Doing server only results in invisible blocks in the world
 
-        if (event.getWorld() == null || event.getWorld().isRemote()) {
+        //Doing server only results in invisible blocks in the world
+        if (event.getWorld() == null) {
             return;
         }
 
         if (chunkAlreadyDone(event.getChunk())) {
             //ReForge.LOGGER.info("Skipping, already done");
-
             return;
         }
 
         if (!insideBounds(event.getChunk().getPos().asBlockPos())) {
-            //LOGGER.info("Skipping, Outside world bounds");
+            //ReForge.LOGGER.info("Skipping, Outside world bounds");
             return;
         }
-        //TODO Run PrepStructureStarts here?
 
         if (adjacentCalls.contains(event.getChunk().getPos().asLong())) {
-            //TODO Run PrepStructureStarts  Maybe here instead?
             //ReForge.LOGGER.info("A chunk registered as adjacent has been caught by the chunk load event");
             adjacentCalls.remove(event.getChunk().getPos().asLong());
         } else {
+            //ReForge.LOGGER.info("Chunk queued for reforging");
             threadpool.execute(new TickThreadGenerator(event.getChunk()));
         }
 

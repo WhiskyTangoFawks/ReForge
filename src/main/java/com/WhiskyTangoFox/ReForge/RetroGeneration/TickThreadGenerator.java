@@ -39,7 +39,7 @@ public class TickThreadGenerator implements Runnable {
         ChunkScanner scanner = new ChunkScanner(chunk);
         //scanner.scanChunk();
         scanner.backupTileEntities();
-        regenChunk(chunk, scanner.hasTileEntities());
+        regenChunk(chunk, scanner.hasAnyTileEntities(), scanner.hasTileEntitiesBelowMax());
         scanner.checkTileentities();
         markChunkDone(chunk);
 
@@ -57,13 +57,13 @@ public class TickThreadGenerator implements Runnable {
         chunk.heightMap.put(Heightmap.Type.WORLD_SURFACE_WG, chunk.heightMap.get(Heightmap.Type.WORLD_SURFACE));
     }
 
-    void regenChunk(IChunk chunk, Boolean hasTileEntities) {
+    void regenChunk(IChunk chunk, Boolean hasAnyTileEntities, Boolean hasTileEntitiesBelowMaxY) {
 
         ChunkGenerator regenerator = getChunkGenerator(chunk.getWorldForge());
-        VanillaFeatureGenerator vanillaGen = new VanillaFeatureGenerator(chunk.getWorldForge(), chunk, regenerator, chunk.getPos().asBlockPos(), hasTileEntities);
+        VanillaFeatureGenerator vanillaGen = new VanillaFeatureGenerator(chunk.getWorldForge(), chunk, regenerator, chunk.getPos().asBlockPos(), hasAnyTileEntities, hasTileEntitiesBelowMaxY);
         vanillaGen.generate();
         if (ModList.get().isLoaded("quark")) {
-            QuarksGenerator qGen = new QuarksGenerator(chunk.getWorldForge(), regenerator, chunk.getPos().asBlockPos(), hasTileEntities);
+            QuarksGenerator qGen = new QuarksGenerator(chunk.getWorldForge(), regenerator, chunk.getPos().asBlockPos(), hasAnyTileEntities, hasTileEntitiesBelowMaxY);
             qGen.doGen();
         }
     }

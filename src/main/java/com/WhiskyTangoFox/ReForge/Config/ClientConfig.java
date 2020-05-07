@@ -8,6 +8,7 @@ public class ClientConfig {
     public final ForgeConfigSpec.IntValue maxX;
     public final ForgeConfigSpec.IntValue minZ;
     public final ForgeConfigSpec.IntValue maxZ;
+    public final ForgeConfigSpec.IntValue maxYToSkipGen;
 
     public final ForgeConfigSpec.BooleanValue oceanRuin;
     public final ForgeConfigSpec.BooleanValue oceanMonument;
@@ -41,6 +42,10 @@ public class ClientConfig {
                 .comment("Max Z value on map to run gen on")
                 .translation("reforge" + ".config." + "maxZ")
                 .defineInRange("maxZ", 7680, -10000, 10000);
+        maxYToSkipGen = builder
+                .comment("If a chunk contains a tile enitty below this Y value, underground structures wont generate")
+                .translation("reforge" + ".config." + "maxYToSkipGen")
+                .defineInRange("maxYToSkipGen", 60, 0, 255);
         builder.pop();
         builder.push("Generate Stuctures");
         oceanRuin = builder

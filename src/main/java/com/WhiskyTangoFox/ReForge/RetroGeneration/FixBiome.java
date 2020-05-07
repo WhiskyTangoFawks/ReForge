@@ -1,6 +1,6 @@
 package com.WhiskyTangoFox.ReForge.RetroGeneration;
 
-import net.minecraft.world.biome.Biomes;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunk;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,9 +9,11 @@ public class FixBiome {
 
     public static final Logger LOGGER = LogManager.getLogger();
 
-   static void fixBiome(IChunk chunk){
-        for (int n = 0; n< chunk.getBiomes().biomes.length; n++){
-            chunk.getBiomes().biomes[n] = Biomes.THE_END;
+    static void fixBiome(IChunk chunk, Biome oldBiome, Biome newBiome) {
+        for (int n = 0; n < chunk.getBiomes().biomes.length; n++) {
+            if (chunk.getBiomes().biomes[n] == oldBiome) {
+                chunk.getBiomes().biomes[n] = newBiome;
+            }
         }
 
     }

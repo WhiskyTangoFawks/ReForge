@@ -26,7 +26,9 @@ public class VanillaFeatureGenerator {
     private final IChunk chunk;
     private final ChunkGenerator generator;
     private final BlockPos pos;
-    private final Boolean hasTileEntities;
+    private final Boolean hasAnyTileEntities;
+    private final Boolean hasTileEntitiesBelowMaxY;
+
 
     private static Feature fossil = Feature.FOSSIL;
     private static Feature dungeon = Feature.MONSTER_ROOM;
@@ -45,25 +47,23 @@ public class VanillaFeatureGenerator {
 
     public static Structure[] structure = {oceanRuin, wreck, mine, oceanMonument, stronghold, treasure, hut, mansion, pyramid, pillager};
 
-    VanillaFeatureGenerator(IWorld world, IChunk chunk, ChunkGenerator gen, BlockPos pos, boolean hasTiles) {
+    VanillaFeatureGenerator(IWorld world, IChunk chunk, ChunkGenerator gen, BlockPos pos, Boolean hasAnyTileEntities, Boolean hasTileEntitiesBelowMaxY) {
         this.world = world;
         this.chunk = chunk;
         this.generator = gen;
         this.pos = pos;
-        this.hasTileEntities = hasTiles;
+        this.hasAnyTileEntities = hasAnyTileEntities;
+        this.hasTileEntitiesBelowMaxY = hasTileEntitiesBelowMaxY;
     }
 
     void generate() {
         //try {
-        if (hasTileEntities) {
-            ReForge.LOGGER.info("Tile Entities Found- skipping gen " + pos.toString());
-            return;
-        }
+
         generateStructures();
 
         try {
             int fossilChance = BiomeDictionary.hasType(world.getBiome(pos), BiomeDictionary.Type.MESA) ? ReforgeConfig.fossilChance / 2 : ReforgeConfig.fossilChance;
-            if (ReforgeConfig.fossilChance > 0 && world.getRandom().nextInt(fossilChance) == 0 && fossil.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
+            if (!hasTileEntitiesBelowMaxY && ReforgeConfig.fossilChance > 0 && world.getRandom().nextInt(fossilChance) == 0 && fossil.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
                 ReForge.LOGGER.info("Fossil Placed " + pos.toString());
             }
         } catch (Exception e) {
@@ -72,15 +72,9 @@ public class VanillaFeatureGenerator {
     }
 
     public void generateStructures() {
-        if (!(world instanceof ServerWorld)) {
-            return;
-        }
-        //try moving this to pre-threading
         prepStructureStarts(world, chunk, generator);
         generateStructureStarts();
         placeStructures();
-
-
     }
 
     //I think this populates the keys
@@ -110,39 +104,39 @@ public class VanillaFeatureGenerator {
     }
 
     void placeStructures() {
-        if (ReforgeConfig.stronghold && stronghold.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
+        if (!hasTileEntitiesBelowMaxY && ReforgeConfig.stronghold && stronghold.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
             ReForge.LOGGER.info("Stronghold Placed " + pos.toString());
         }
-        if (ReforgeConfig.oceanMonument && oceanMonument.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
+        if (!hasTileEntitiesBelowMaxY && ReforgeConfig.oceanMonument && oceanMonument.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
             ReForge.LOGGER.info("OceanMonument Placed " + pos.toString());
         }
         OceanRuinStructure.Type ruinType = BiomeDictionary.hasType(world.getBiome(pos), BiomeDictionary.Type.COLD) ? OceanRuinStructure.Type.COLD : OceanRuinStructure.Type.WARM;
-        if (ReforgeConfig.oceanRuin && oceanRuin.place(world, generator, world.getRandom(), pos, new OceanRuinConfig(ruinType, 0.5F, 0.5F))) {
+        if (!hasTileEntitiesBelowMaxY && ReforgeConfig.oceanRuin && oceanRuin.place(world, generator, world.getRandom(), pos, new OceanRuinConfig(ruinType, 0.5F, 0.5F))) {
             ReForge.LOGGER.info("Ocean ruin Placed " + pos.toString());
         }
-        if (ReforgeConfig.shipWreck && wreck.place(world, generator, world.getRandom(), pos, new ShipwreckConfig(true))) {
+        if (!hasAnyTileEntities && ReforgeConfig.shipWreck && wreck.place(world, generator, world.getRandom(), pos, new ShipwreckConfig(true))) {
             ReForge.LOGGER.info("Beached Shipwreck Placed " + pos.toString());
         }
-        if (ReforgeConfig.shipWreck && wreck.place(world, generator, world.getRandom(), pos, new ShipwreckConfig(false))) {
+        if (!hasAnyTileEntities && ReforgeConfig.shipWreck && wreck.place(world, generator, world.getRandom(), pos, new ShipwreckConfig(false))) {
             ReForge.LOGGER.info("Shipwreck Placed " + pos.toString());
         }
-        if (ReforgeConfig.treasure && treasure.place(world, generator, world.getRandom(), pos, new BuriedTreasureConfig(1F))) {
+        if (!hasTileEntitiesBelowMaxY && ReforgeConfig.treasure && treasure.place(world, generator, world.getRandom(), pos, new BuriedTreasureConfig(1F))) {
             ReForge.LOGGER.info("Buried Treasure Placed " + pos.toString());
         }
         MineshaftStructure.Type mineType = BiomeDictionary.hasType(world.getBiome(pos), BiomeDictionary.Type.MESA) ? MineshaftStructure.Type.MESA : MineshaftStructure.Type.NORMAL;
-        if (ReforgeConfig.mineShaft && mine.place(world, generator, world.getRandom(), pos, new MineshaftConfig(0.004f, mineType))) {
+        if (!hasTileEntitiesBelowMaxY && ReforgeConfig.mineShaft && mine.place(world, generator, world.getRandom(), pos, new MineshaftConfig(0.004f, mineType))) {
             ReForge.LOGGER.info("Mineshaft Placed " + pos.toString());
         }
-        if (ReforgeConfig.swampHut && hut.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
+        if (!hasAnyTileEntities && ReforgeConfig.swampHut && hut.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
             ReForge.LOGGER.info("SwampHut Placed " + pos.toString());
         }
-        if (ReforgeConfig.woodlandMansion && mansion.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
+        if (!hasAnyTileEntities && ReforgeConfig.woodlandMansion && mansion.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
             ReForge.LOGGER.info("Woodland Mansion Placed " + pos.toString());
         }
-        if (ReforgeConfig.pyramid && pyramid.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
+        if (!hasAnyTileEntities && ReforgeConfig.pyramid && pyramid.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
             ReForge.LOGGER.info("Desert Pyramid Placed " + pos.toString());
         }
-        if (ReforgeConfig.pillagerOutpost && pillager.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
+        if (!hasAnyTileEntities && ReforgeConfig.pillagerOutpost && pillager.place(world, generator, world.getRandom(), pos, new NoFeatureConfig())) {
             ReForge.LOGGER.info("Pillager Outpost Placed " + pos.toString());
         }
 

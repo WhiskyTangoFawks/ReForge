@@ -25,7 +25,7 @@ public class ReForge
     public ReForge() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ReforgeConfig.CLIENT_SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ReforgeConfig.CLIENT_SPEC);
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(new ChunkLoadEventHandler());
         QuarksGenerator.generators = ObfuscationReflectionHelper.getPrivateValue(WorldGenHandler.class, new WorldGenHandler(), "generators");

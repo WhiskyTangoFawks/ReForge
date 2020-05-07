@@ -23,6 +23,7 @@ public class ReforgeConfig {
     public static int maxX;
     public static int minZ;
     public static int maxZ;
+    public static int maxYToSkipGen;
 
     public static int fossilChance;
     public static int icebergChance;
@@ -39,11 +40,12 @@ public class ReforgeConfig {
     public static Boolean pyramid;
     public static Boolean pillagerOutpost;
 
+
     @SubscribeEvent
     public static void onModConfigEvent(final ModConfig.ModConfigEvent configEvent) {
-        if (configEvent.getConfig().getSpec() == ReforgeConfig.CLIENT_SPEC) {
+        //if (configEvent.getConfig().getSpec() == ReforgeConfig.CLIENT_SPEC) {
             bakeConfig();
-        }
+        //}
     }
 
     public static void bakeConfig() {
@@ -51,6 +53,7 @@ public class ReforgeConfig {
         maxX = CLIENT.maxX.get();
         minZ = CLIENT.minZ.get();
         maxZ = CLIENT.maxZ.get();
+        maxYToSkipGen = CLIENT.maxYToSkipGen.get();
         oceanRuin = CLIENT.oceanRuin.get();
         oceanMonument = CLIENT.oceanMonument.get();
         shipWreck = CLIENT.shipWreck.get();

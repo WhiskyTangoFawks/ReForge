@@ -1,6 +1,7 @@
 package com.WhiskyTangoFox.ReForge.RetroGeneration;
 
 import com.WhiskyTangoFox.ReForge.BookFixer;
+import com.WhiskyTangoFox.ReForge.Config.ReforgeConfig;
 import com.WhiskyTangoFox.ReForge.ReForge;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
@@ -19,6 +20,8 @@ public class ChunkScanner {
 
     public final IChunk chunk;
     public HashMap<BlockState, Integer> counter = new HashMap<BlockState, Integer>();
+
+    private boolean hasTileEntitiesBelowMaxY = false;
 
     public void processPos(BlockPos pos) {
         BlockState state = chunk.getBlockState(pos);
@@ -54,6 +57,9 @@ public class ChunkScanner {
     public void checkTileentities() {
         Set<BlockPos> newSet = chunk.getTileEntitiesPos();
         for (BlockPos pos : entitiesList) {
+            if (pos.getY() > ReforgeConfig.maxYToSkipGen) {
+                hasTileEntitiesBelowMaxY = true;
+            }
             if (!newSet.contains(pos)) {
                 ReForge.LOGGER.warn("ReForging has resulted in a tile entity being removed");
                 chunk.getWorldForge().setBlockState(pos, tileEntitiesBackup.get(pos), 0);
@@ -62,8 +68,12 @@ public class ChunkScanner {
         }
     }
 
-    public boolean hasTileEntities() {
-        return tileEntitiesBackup.size() > 0;
+    public boolean hasTileEntitiesBelowMax() {
+        return this.hasTileEntitiesBelowMaxY;
+    }
+
+    public boolean hasAnyTileEntities() {
+        return this.tileEntitiesBackup.size() > 0;
     }
 
 }

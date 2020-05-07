@@ -22,21 +22,25 @@ public class QuarksGenerator {
     final IWorld worldIn;
     final ChunkGenerator generator;
     final BlockPos pos;
-    final Boolean hasTileEntities;
+    private final Boolean hasAnyTileEntities;
+    private final Boolean hasTileEntitiesBelowMaxY;
 
-    public QuarksGenerator(IWorld world, ChunkGenerator gen, BlockPos pos, boolean hasTiles) {
+    public QuarksGenerator(IWorld world, ChunkGenerator gen, BlockPos pos, boolean hasAnyTileEntities, boolean hasTileEntitiesBelowMaxY) {
         this.worldIn = world;
         this.generator = gen;
         this.pos = pos;
-        this.hasTileEntities = hasTiles;
+        this.hasAnyTileEntities = hasAnyTileEntities;
+        this.hasTileEntitiesBelowMaxY = hasTileEntitiesBelowMaxY;
     }
 
     public void doGen() {
         generate(GenerationStage.Decoration.UNDERGROUND_ORES);
-        generate(GenerationStage.Decoration.UNDERGROUND_DECORATION);
 
-        if (!hasTileEntities) { //If the chunk has any tile entities already, skip structure generation
+        if (!hasTileEntitiesBelowMaxY) { //If the chunk has any tile entities already, skip structure generation
             generate(GenerationStage.Decoration.UNDERGROUND_STRUCTURES);
+            generate(GenerationStage.Decoration.UNDERGROUND_DECORATION);
+        }
+        if (!hasAnyTileEntities) { //If the chunk has any tile entities already, skip structure generation
             generate(GenerationStage.Decoration.SURFACE_STRUCTURES);
             generate(GenerationStage.Decoration.VEGETAL_DECORATION);
         }
