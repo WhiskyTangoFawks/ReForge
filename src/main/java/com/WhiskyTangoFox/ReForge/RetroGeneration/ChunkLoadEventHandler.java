@@ -6,6 +6,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -23,14 +24,18 @@ public class ChunkLoadEventHandler {
 
     @SubscribeEvent
     public void chunkLoad(ChunkEvent.Load event) {
-
-        //Doing server only results in invisible blocks in the world
-        if (event.getWorld() == null) {
+        if (adjacentCalls.contains(event.getChunk().getPos().asLong())) {
+            //ReForge.LOGGER.info("A chunk registered as adjacent has been caught by the chunk load event");
+            adjacentCalls.remove(event.getChunk().getPos().asLong());
             return;
         }
-
+        //Doing server only results in invisible blocks in the world
+        if (event.getWorld() == null || !(event.getWorld() instanceof ServerWorld)) {
+            return;
+        }
         if (chunkAlreadyDone(event.getChunk())) {
             //ReForge.LOGGER.info("Skipping, already done");
+            VanillaFeatureGenerator.preppedChunks.add(event.getChunk().getPos().asLong());
             return;
         }
 
@@ -38,15 +43,8 @@ public class ChunkLoadEventHandler {
             //ReForge.LOGGER.info("Skipping, Outside world bounds");
             return;
         }
-
-        if (adjacentCalls.contains(event.getChunk().getPos().asLong())) {
-            //ReForge.LOGGER.info("A chunk registered as adjacent has been caught by the chunk load event");
-            adjacentCalls.remove(event.getChunk().getPos().asLong());
-        } else {
-            //ReForge.LOGGER.info("Chunk queued for reforging");
-            threadpool.execute(new TickThreadGenerator(event.getChunk()));
-        }
-
+        //ReForge.LOGGER.info("Chunk queued for reforging");
+        threadpool.execute(new TickThreadGenerator(event.getChunk()));
     }
 
     boolean insideBounds(BlockPos pos) {
@@ -71,7 +69,7 @@ public class ChunkLoadEventHandler {
                 if (thread != null && thread.getChunkPos() != pos) {
                     pos = thread.getChunkPos();
                 } else {
-                    ReForge.LOGGER.warn("still trying to generate the same chunk: " + pos.toString());
+                    ReForge.LOGGER.info("still trying to generate the same chunk: " + pos.toString());
                 }
 
             }

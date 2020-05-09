@@ -1,5 +1,7 @@
 package com.WhiskyTangoFox.ReForge.Config;
 
+import com.WhiskyTangoFox.ReForge.RetroGeneration.VanillaFeatureGenerator;
+import net.minecraft.world.gen.feature.Feature;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -55,15 +57,45 @@ public class ReforgeConfig {
         maxZ = CLIENT.maxZ.get();
         maxYToSkipGen = CLIENT.maxYToSkipGen.get();
         oceanRuin = CLIENT.oceanRuin.get();
+        if (oceanRuin) {
+            VanillaFeatureGenerator.structure.add(Feature.OCEAN_RUIN);
+        }
         oceanMonument = CLIENT.oceanMonument.get();
+        if (oceanMonument) {
+            VanillaFeatureGenerator.structure.add(Feature.OCEAN_MONUMENT);
+        }
         shipWreck = CLIENT.shipWreck.get();
+        if (shipWreck) {
+            VanillaFeatureGenerator.structure.add(Feature.SHIPWRECK);
+        }
         mineShaft = CLIENT.mineShaft.get();
+        if (mineShaft) {
+            VanillaFeatureGenerator.structure.add(Feature.MINESHAFT);
+        }
         stronghold = CLIENT.stronghold.get();
+        if (stronghold) {
+            VanillaFeatureGenerator.structure.add(Feature.STRONGHOLD);
+        }
         treasure = CLIENT.treasure.get();
+        if (treasure) {
+            VanillaFeatureGenerator.structure.add(Feature.BURIED_TREASURE);
+        }
         swampHut = CLIENT.swampHut.get();
+        if (swampHut) {
+            VanillaFeatureGenerator.structure.add(Feature.SWAMP_HUT);
+        }
         woodlandMansion = CLIENT.woodlandMansion.get();
+        if (woodlandMansion) {
+            VanillaFeatureGenerator.structure.add(Feature.WOODLAND_MANSION);
+        }
         pyramid = CLIENT.pyramid.get();
+        if (pyramid) {
+            VanillaFeatureGenerator.structure.add(Feature.DESERT_PYRAMID);
+        }
         pillagerOutpost = CLIENT.pillagerOutpost.get();
+        if (pillagerOutpost) {
+            VanillaFeatureGenerator.structure.add(Feature.PILLAGER_OUTPOST);
+        }
         fossilChance = CLIENT.fossilChance.get();
         //icebergChance = CLIENT.icebergChance.get();
         //dungeonChance = CLIENT.dungeonChance.get();

@@ -34,13 +34,17 @@ public class TickThreadGenerator implements Runnable {
     public void run() {
         ChunkLoadEventHandler.thread = this;
         //FixBiome.fixBiome(chunk);
-
+        //ReForge.LOGGER.info("Fixing Heightmaps");
         fixHeightMaps();
         ChunkScanner scanner = new ChunkScanner(chunk);
         //scanner.scanChunk();
+        //ReForge.LOGGER.info("Backing up tile entities");
         scanner.backupTileEntities();
+        //ReForge.LOGGER.info("Regenerating Chunk");
         regenChunk(chunk, scanner.hasAnyTileEntities(), scanner.hasTileEntitiesBelowMax());
+        //ReForge.LOGGER.info("Checking Tile Entities Chunk");
         scanner.checkTileentities();
+        //ReForge.LOGGER.info("Marking Done");
         markChunkDone(chunk);
 
         //Experiment to see if I can build a hook for loading a datapack
@@ -49,6 +53,7 @@ public class TickThreadGenerator implements Runnable {
         if (ChunkLoadEventHandler.adjacentCalls.size() > 0) {
             ChunkLoadEventHandler.adjacentCalls.clear();
         }
+        //ReForge.LOGGER.info("Chunk Finished");
     }
 
     private void fixHeightMaps() {
@@ -61,8 +66,10 @@ public class TickThreadGenerator implements Runnable {
 
         ChunkGenerator regenerator = getChunkGenerator(chunk.getWorldForge());
         VanillaFeatureGenerator vanillaGen = new VanillaFeatureGenerator(chunk.getWorldForge(), chunk, regenerator, chunk.getPos().asBlockPos(), hasAnyTileEntities, hasTileEntitiesBelowMaxY);
+        //ReForge.LOGGER.info("Doing Vanilla Generation");
         vanillaGen.generate();
         if (ModList.get().isLoaded("quark")) {
+            //ReForge.LOGGER.info("Doing Quarks Generation");
             QuarksGenerator qGen = new QuarksGenerator(chunk.getWorldForge(), regenerator, chunk.getPos().asBlockPos(), hasAnyTileEntities, hasTileEntitiesBelowMaxY);
             qGen.doGen();
         }
